@@ -184,10 +184,23 @@ spark.read.option("inferSchema","true")
 **- DataFrameWriter**
   - Write data to the "core" data formats (csv, json, jdbc, orc, parquet, text and tables)
   - Overwriting existing files. e.g: `spark.write.mode("overwrite").parquet(<path>)`
-  - How to configure options for specific formats. e.g: `df.write.format("csv").mode("overwrite").option("sep","\t").save("my-tsv-file.tsv")`
+  - How to configure options for specific formats. e.g: 
+  ```
+  df.write.format("csv").mode("overwrite").option("sep","\t").save("my-tsv-file.tsv")
+  df.write.jdbc(newPath, table_name, mode="append", properties=props)
+  ```
   - How to write a data source to 1 single file or N separate files. 
+  - Writing data in parallel - Partitioning by column:
+  `df.write.mode("overwrite").partitionBy("DEST_COUNTRY_NAME").save(partitioned_files_csv_in_parquet.parquet)`
   - How to write partitioned data. e.g: `spark.write.repartition(N).mode("overwrite").parquet(<path>)`
-  - How to bucket data by a given set of columns
+  - How to bucket data by a given set of columns. (Bucketing is supported only for Spark-managed tables). e.g:
+  ```
+  numberBuckets = 10
+  columnToBucketBy = "count"
+
+   ## It will save in " /user/hive/warehouse/bucketedfiles/part-000-....snappy.parquet " 
+  df.write.format("parquet").mode("overwrite").bucketBy(numberBuckets, columnToBucketBy).saveAsTable("bucketedFiles")
+  ```
 
 **- Manipulating Dataframe**
   - Columns and expressions: `col("name")` , `expr("salary * 5")`
@@ -232,7 +245,7 @@ spark.read.option("inferSchema","true")
   - Cast columns: `df.select(col("count").cast("int").alias("countCast"))`
   - Sorting rows: 
   ```
-  df.select(*).sort(expr("DEST_COUNTRY_NAME"))
+  df.select("*").sort(expr("DEST_COUNTRY_NAME"))
   df.orderBy(desc("count"))
   df.orderBy(col("count").desc(),col("DEST_COUNTRY_NAME").asc()).show(5)
   ```
