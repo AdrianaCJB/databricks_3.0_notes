@@ -184,12 +184,9 @@ spark.read.option("inferSchema","true")
 **- DataFrameWriter**
   - Write data to the "core" data formats (csv, json, jdbc, orc, parquet, text and tables)
   - Overwriting existing files. e.g: `spark.write.mode("overwrite").parquet(<path>)`
-  - How to configure options for specific formats
-  - How to write a data source to 1 single file or N separate files. e.g: 
-  - How to write partitioned data
-  ```
-  spark.write.repartition(N).mode("overwrite").parquet(<path>)
-  ```
+  - How to configure options for specific formats. e.g: `df.write.format("csv").mode("overwrite").option("sep","\t").save("my-tsv-file.tsv")`
+  - How to write a data source to 1 single file or N separate files. 
+  - How to write partitioned data. e.g: `spark.write.repartition(N).mode("overwrite").parquet(<path>)`
   - How to bucket data by a given set of columns
 
 **- Manipulating Dataframe**
@@ -212,8 +209,8 @@ spark.read.option("inferSchema","true")
   ```
   - Rename columns: 
   ```
-  withColumnRenamed("name", "newColumName")
-    df.select("DEST_COUNTRY_NAME",
+  df.withColumnRenamed("name", "newColumName")
+  df.select("DEST_COUNTRY_NAME",
             "count", 
             expr("count") > lit(100))\
       .withColumnRenamed("(count > 100)","higherThan100")\
@@ -224,14 +221,36 @@ spark.read.option("inferSchema","true")
   ```
   df.filter(col("DEST_COUNTRY_NAME") == "United States")
   df.where("count < 20")
+  df.where(col("name") == 'DOT' & (col("avg") < 3 | col("avg") > 200))
   ```
   - Dropping: `df.drop("col")
-  - Unique rows: `df.select("col1").distinct().show()`
-  - Cast columns: `df.select(col("count").cast("int").alias("count_cast"))`
-  
-  
+  - Unique rows: 
+  ```
+  df.select("col1").distinct().show()
+  df.select(countDistinct("col1")).show()
+  ```
+  - Cast columns: `df.select(col("count").cast("int").alias("countCast"))`
+  - Sorting rows: 
+  ```
+  df.select(*).sort(expr("DEST_COUNTRY_NAME"))
+  df.orderBy(desc("count"))
+  df.orderBy(col("count").desc(),col("DEST_COUNTRY_NAME").asc()).show(5)
+  ```
+  - Limit rows: `df.orderBy(expr("count").asc()).limit(1).show()`
+  - Using sample to extract random sample from a dataframe:
+  ```
+  withReplacement = False
+  fraction = 0.3
+  seed = 4
+
+  df.sample(withReplacement, fraction, seed).show(5)
+  df.sample(withReplacement, fraction, seed).count()
+  ```
+  - Union dataframes: `df1.union(df2)`
+  - Creates or replaces a local temporary view with this DataFrame: `df.createOrReplaceTempView("complexDF")`
 
 
+**- Window functions**
 
 **- Partitions**
   - Display the number of partitions in each DataFrame. e.g: `df.rdd.getNumPartitions()`
