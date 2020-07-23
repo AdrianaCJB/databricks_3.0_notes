@@ -53,7 +53,7 @@ could be a single or multiple Spark stages.**
     - You can change this value, and the number of output partitions will change.
 `spark.conf.set("spark.sql.shuffle.partitions", 5)`
 
-## DataFrames API 
+## Spark Concepts
 
 ### Transformations, Actions and Lazy Evaluation
 
@@ -65,12 +65,12 @@ Two types of transformations:
   - Narrow dependencies: Any transformation where a single output partition can be computed from a single input partition. 
     - Also called **pipelining**
     - performed **in-memory**
-    - e.g: `filter() and contains()`
+    - e.g: `where(), filter() and contains()`
   - Wide dependencies:
-    - Also called **shuffle**.
+    - Also called **shuffle**
     - data from other partitions is read in, combined, and written to disk. 
     - performed **on disk**
-    - e.g: `groupBy() and orderBy()`
+    - e.g: `count(), sort(), groupBy() and orderBy()`
 
 - Actions: An action instructs Spark to compute a result from a series of transformations. Nothing in a query plan is executed until an action is
 invoked. There are three kinds of actions:
@@ -86,13 +86,27 @@ invoked. There are three kinds of actions:
     | select()        | collect() |
     | join()          | save()    |
 
-- Lazy Evaluation: Refers to the idea that Spark waits until the last moment to execute a series of operations. That is, their results are not computed immediately, but they are recorded or remembered as a lineage. Allows to rearrange certain transformations. The plan is executed when you call an action. 
+- Lazy Evaluation: Refers to the idea that Spark waits until the last moment to execute a series of operations. That is, their results are not computed immediately, but they are recorded or remembered as a lineage. Allows to rearrange certain transformations. 
+  - The plan is executed when you call an action. 
+  - The expression build a logical plan represented by a directed acyclic graph (DAG).
 
 
 
+## Spark's Structured APIs
+
+### RDD
+
+The RDD is the most basic abstraction in Spark. There are three vital characteristics associated with an RDD:
+- Dependencies
+- Partitions (with some locality information)
+- Compute function: Partition => Iterator[T]
 
 - Partitions:
 - Caching:
+
+
+## DataFrames API 
+
 
 ## The Spark UI 
 
