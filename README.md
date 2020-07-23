@@ -1,6 +1,6 @@
 # Databricks Spark 3.0 Notes
 
-This is my study notes about the Databricks Certified Associate Developer for Apache Spark 3.0 - Python
+This is my study notes and summary about the Databricks Certified Associate Developer for Apache Spark 3.0 - Python
 
 
 # Summary
@@ -101,8 +101,7 @@ The RDD is the most basic abstraction in Spark. There are three vital characteri
 - Partitions (with some locality information)
 - Compute function: Partition => Iterator[T]
 
-- Partitions:
-- Caching:
+
 
 
 ## DataFrames API 
@@ -119,12 +118,23 @@ The RDD is the most basic abstraction in Spark. There are three vital characteri
 
 - DataFrameReader
   - Read data for the "core" data formats (CSV, JSON, JDBC, ORC, Parquet, text and tables). e.g: `spark.read.csv("<path>")`, `spark.read.json("<path>")`, `spark.read.jdbc("<path>")`, `spark.read.orc("<path>")`, `spark.read.parquet("<path>")`, `spark.read.text("<path>")`
-  - How to configure options for specific formats. e.g: `spark.read.option("inferSchema","true").option("header","true").option("sep",";").option("header","true").option("header","true")`
+  - How to configure options for specific formats. e.g: 
+```
+spark.read.option("inferSchema","true")
+          .option("header","true")
+          .option("sep",";")    or   .option("delimiter", "\t")
+          .option("timestampFormat","mm/dd/yyyy hh:mm:ss a")
+```
   - How to read data from non-core formats using format() and load(). e.g: `spark.read.format("<format>").load("<path>")`
-  - Read from the database by passing the URL, table name, and connection properties into. e.g: `spark.read.jdbc(url, table, column=None, lowerBound=None, upperBound=None, numPartitions=None, predicates=None, properties=None)`. Properties is a dictionary of JDBC database at least properties "user" and "password". For example { ‘user’ : ‘SYSTEM’, ‘password’ : ‘mypassword’ }
+  - Read from the database by passing the URL, table name, and connection properties into. e.g: 
+  ```
+  spark.read.jdbc(url, table, column=None, lowerBound=None, upperBound=None, numPartitions=None, predicates=None, properties=None)
+  ```
+  Properties is a dictionary of JDBC database at least properties "user" and "password". For example { ‘user’ : ‘SYSTEM’, ‘password’ : ‘mypassword’ }
   - How to specify a DDL-formatted schema. e.g: `schema = "name STRING, title STRING, pages INT"`
   - How to construct and specify a schema using the StructType classes. e.g: 
-  ```schema = StructType ([ 
+  ```
+  schema = StructType ([ 
               StructField("name", StringType(), False),
               StructField("title", StringType(), False),
               StructField("pages", IntegerType(), False) ])
@@ -141,17 +151,47 @@ The RDD is the most basic abstraction in Spark. There are three vital characteri
   }     
   ```
   e.g. Schema JSON:
-  ```schema = StructType ([ 
+  ```
+  schema = StructType ([ 
               StructField("name", StructType([
                   StructField("firstName", StringType(), False),
                   StructField("lastName", StringType(), False)
               ]), False)) ])
   ```
+  - Corrupt Record Handling for CSV and JSON: 
+    - PERMISSIVE: Includes corrupt records in a "_corrupt_record" column (by default)
+    - DROPMALFORMED:Ignores all corrupted records
+    - FAILFAST: Throws an exception when it meets corrupted records
+  
+  ```
+  df = (spark.read
+            .option("mode", "PERMISSIVE").json(<path>)
+            .option("columnNameOfCorruptRecord", "_corrupt_record")
+       )
+  ```
 
 
+- DataFrameWriter
+  - Write data to the "core" data formats (csv, json, jdbc, orc, parquet, text and tables)
+  - Overwriting existing files
+  - How to configure options for specific formats
+  - How to write a data source to 1 single file or N separate files
+  - How to write partitioned data
+  - How to bucket data by a given set of columns
 
 
+- Partitions:
+  - Display the number of partitions in each DataFrame. e.g: `df.rdd.getNumPartitions()`
+  - Set to up the number of partitions. e.g: `df.repartition(5)`
+  - Set to down the number of partitions. e.g: `df.coalesce(2)`
+  
+- Caching:
 
+## Util Commands in Databricks
+
+- `%timeit` to compare .
+- `%fs ls <path>` to list files inside of path. 
+- `%fs head <file>` to print the bottom of file.
 
 ## The Spark UI 
 
