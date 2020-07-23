@@ -106,17 +106,17 @@ The RDD is the most basic abstraction in Spark. There are three vital characteri
 
 ## DataFrames API 
 
-- SparkContext
+**- SparkContext**
   - Candidates are expected to know how to use the SparkContext to control basic configuration settings such as spark.sql.shuffle.partitions.
 
-- SparkSession
+**- SparkSession**
   - Create a DataFrame/Dataset from a collection (e.g. list or set). Dataset is only for Scala and Java.
   - Create a DataFrame for a range of numbers. e.g: `spark.range(10).toDF("value")`
   - Access the DataFrameReaders. e.g: `spark.read.format("<format>").load("<path>")`
   - Register User Defined Functions (UDFs). e.g: `spark.udf.register(<name_udf_sql>, <name_funtion>, <output_datatype>)`
 
 
-- DataFrameReader
+**- DataFrameReader**
   - Read data for the "core" data formats (CSV, JSON, JDBC, ORC, Parquet, text and tables). 
   e.g: 
   `spark.read.csv("<path>")`, <br>
@@ -181,21 +181,79 @@ spark.read.option("inferSchema","true")
     ```
 
 
-- DataFrameWriter
+**- DataFrameWriter**
   - Write data to the "core" data formats (csv, json, jdbc, orc, parquet, text and tables)
-  - Overwriting existing files
+  - Overwriting existing files. e.g: `spark.write.mode("overwrite").parquet(<path>)`
   - How to configure options for specific formats
-  - How to write a data source to 1 single file or N separate files
+  - How to write a data source to 1 single file or N separate files. e.g: 
   - How to write partitioned data
+  ```
+  spark.write.repartition(N).mode("overwrite").parquet(<path>)
+  ```
   - How to bucket data by a given set of columns
 
+**- Manipulating Dataframe**
+  - Columns and expressions: `col("name")` , `expr("salary * 5")`
+  - Selecting columns:
+  ```
+  df.select("col1","col2").show()
+  df.selectExpr("*", "(DEST_COUNTRY_NAME = ORIGIN_COUNTRY_NAME) as compare").show(5)
+  df.selectExpr("avg(count) as average",
+                "sum(count) as sum",
+                "max(count) as maximum",
+                "min(count) as minimum",
+                "count(distinct(DEST_COUNTRY_NAME)) as 
+                 count_distinct_dest_country").show(5)
+  ```
+  - Create columns:
+  ```
+  df.withColumn("newColumn", count * 100 )  
+  df.withColumn("flag", expr("col1 == col2")) # return true or false
+  ```
+  - Rename columns: 
+  ```
+  withColumnRenamed("name", "newColumName")
+    df.select("DEST_COUNTRY_NAME",
+            "count", 
+            expr("count") > lit(100))\
+      .withColumnRenamed("(count > 100)","higherThan100")\
+      .show(5)
+  ```
+  
+  - Filtering columns:
+  ```
+  df.filter(col("DEST_COUNTRY_NAME") == "United States")
+  df.where("count < 20")
+  ```
+  - Dropping: `df.drop("col")
+  - Unique rows: `df.select("col1").distinct().show()`
+  - Cast columns: `df.select(col("count").cast("int").alias("count_cast"))`
+  
+  
 
-- Partitions:
+
+
+**- Partitions**
   - Display the number of partitions in each DataFrame. e.g: `df.rdd.getNumPartitions()`
   - Set to up the number of partitions. e.g: `df.repartition(5)`
   - Set to down the number of partitions. e.g: `df.coalesce(2)`
   
-- Caching:
+**- Caching**
+
+
+**- Manipulating Data**
+    - Imputing null or missing data: There are some techniques such as dropping these records, adding a placeholder (e.g. -1 or -999), basic imputing by using the mean of non-missing data, and advanced imputing such as clustering ML algorithms or oversampling techniques. e.g. `df.dropna("any")` , `df.na.fill({"col1" : 5})`
+    - Deduplicating data: `df.dropDuplicates(["id"])`
+    - Other helpful data manipultion functions: e.g `explode(), pivot(), cube(), rullop()`
+
+
+## Spark SQL
+
+### Catalyst Optimizer
+
+Is at the core of Spark SQL's power and speed. It automatically finds the most efficient plan for applying your transformations and actions you called for in your code.
+
+
 
 ## Util Commands in Databricks
 
