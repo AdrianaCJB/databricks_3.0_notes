@@ -35,6 +35,10 @@ The Databricks Certified Associate Developer for Apache Spark 3.0certification e
 
 - Jobs: In general, there should be one Spark job for one action. Actions always return results. Each job breaks down into a series of stages, the number of which depends on how many shuffle operations need to take place.
 
+**Note: During interactive sessions with Spark shells, the driver converts the Spark application into one or more Spark jobs. It then transforms each job into a
+`DAG`. This, in essence, is Spark’s execution plan, where each node within a DAG
+could be a single or multiple Spark stages.**
+
 - Stages: Each job gets divided into smaller sets of tasks called stages that depend on each other. A stage represent groups of tasks that can be executed together to compute the same operation on multiple machines. 
 
 - Tasks: A task is just a single unit of work or execution that applied to a unit of data (the partition). Each task corresponds to a combination of blocks of data and a set of transformations that will run on a single executor. If there is one big partition in our dataset, we will have one task. If there are 1,000 little partitions, we will have 1,000 tasks that can be executed in parallel.
@@ -66,7 +70,7 @@ Two types of transformations:
     - Also called **shuffle**.
     - data from other partitions is read in, combined, and written to disk. 
     - performed **on disk**
-    - e.g `groupBy() and orderBy()`
+    - e.g: `groupBy() and orderBy()`
 
 - Actions: An action instructs Spark to compute a result from a series of transformations. Nothing in a query plan is executed until an action is
 invoked. There are three kinds of actions:
@@ -74,13 +78,13 @@ invoked. There are three kinds of actions:
   - Actions to collect data to native objects in the respective language.
   - Actions to write to output data sources.
 
-    | Transformations | Actions |
-    | ------------- | --------- |
-    | orderBy()     |   show()  |
-    | groupBy()     |   take()  |
-    | filter()      |   count() |
-    | select()      | collect() |
-    | join()        |  save()   |
+    | Transformations |  Actions  |
+    | --------------- | --------- |
+    | orderBy()       | show()    |
+    | groupBy()       | take()    |
+    | filter()        | count()   |
+    | select()        | collect() |
+    | join()          | save()    |
 
 - Lazy Evaluation: Refers to the idea that Spark waits until the last moment to execute a series of operations. That is, their results are not computed immediately, but they are recorded or remembered as a lineage. Allows to rearrange certain transformations. The plan is executed when you call an action. 
 
