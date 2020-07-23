@@ -265,6 +265,17 @@ spark.read.option("inferSchema","true")
 
 **- Window functions**
 
+`pyspark.sql.functions.window(timeColumn, windowDuration, slideDuration=None, startTime=None)`
+
+Durations are provided as strings, e.g. ‘1 second’, ‘1 day 12 hours’, ‘2 minutes’. Valid interval strings are ‘week’, ‘day’, ‘hour’, ‘minute’, ‘second’, ‘millisecond’, ‘microsecond’. 
+
+```
+windowSpec = Window.partitionBy("CustomerId","date")\
+                   .orderBy(desc("Quantity"))\
+                   .rowsBetween(Window.unboundedPreceding, Window.currentRow)
+                   
+maxPurchaseQuantity = max(col("Quantity")).over(windowSpec)                   
+```
 **- Partitions**
   - Display the number of partitions in each DataFrame. e.g: `df.rdd.getNumPartitions()`
   - Set to up the number of partitions. e.g: `df.repartition(5)`
