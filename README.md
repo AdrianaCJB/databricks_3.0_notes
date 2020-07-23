@@ -107,6 +107,51 @@ The RDD is the most basic abstraction in Spark. There are three vital characteri
 
 ## DataFrames API 
 
+- SparkContext
+  - Candidates are expected to know how to use the SparkContext to control basic configuration settings such as spark.sql.shuffle.partitions.
+
+- SparkSession
+  - Create a DataFrame/Dataset from a collection (e.g. list or set). Dataset is only for Scala and Java.
+  - Create a DataFrame for a range of numbers. e.g: `spark.range(10).toDF("value")`
+  - Access the DataFrameReaders. e.g: `spark.read.format("<format>").load("<path>")`
+  - Register User Defined Functions (UDFs). e.g: `spark.udf.register(<name_udf_sql>, <name_funtion>, <output_datatype>)`
+
+
+- DataFrameReader
+  - Read data for the "core" data formats (CSV, JSON, JDBC, ORC, Parquet, text and tables). e.g: `spark.read.csv("<path>")`, `spark.read.json("<path>")`, `spark.read.jdbc("<path>")`, `spark.read.orc("<path>")`, `spark.read.parquet("<path>")`, `spark.read.text("<path>")`
+  - How to configure options for specific formats. e.g: `spark.read.option("inferSchema","true").option("header","true").option("sep",";").option("header","true").option("header","true")`
+  - How to read data from non-core formats using format() and load(). e.g: `spark.read.format("<format>").load("<path>")`
+  - Read from the database by passing the URL, table name, and connection properties into. e.g: `spark.read.jdbc(url, table, column=None, lowerBound=None, upperBound=None, numPartitions=None, predicates=None, properties=None)`. Properties is a dictionary of JDBC database at least properties "user" and "password". For example { ‘user’ : ‘SYSTEM’, ‘password’ : ‘mypassword’ }
+  - How to specify a DDL-formatted schema. e.g: `schema = "name STRING, title STRING, pages INT"`
+  - How to construct and specify a schema using the StructType classes. e.g: 
+  ```schema = StructType ([ 
+              StructField("name", StringType(), False),
+              StructField("title", StringType(), False),
+              StructField("pages", IntegerType(), False) ])
+  ```
+  
+  - JSON inside other JSON in a StructType class: 
+  
+  e.g. JSON file:
+  ```
+  { "name" : 
+      { "firstName": "Adriana",
+        "lastName": "Jimenez"
+       }
+  }     
+  ```
+  e.g. Schema JSON:
+  ```schema = StructType ([ 
+              StructField("name", StructType([
+                  StructField("firstName", StringType(), False),
+                  StructField("lastName", StringType(), False)
+              ]), False)) ])
+  ```
+
+
+
+
+
 
 ## The Spark UI 
 
