@@ -189,6 +189,7 @@ spark.read.option("inferSchema","true")
   df.write.format("csv").mode("overwrite").option("sep","\t").save("my-tsv-file.tsv")
   df.write.jdbc(newPath, table_name, mode="append", properties=props)
   ```
+  - Saving Dataframe as a SQL table: `spark.write.format("parquet").saveAsTable(parquet_table)`
   - How to write a data source to 1 single file or N separate files. 
   - Writing data in parallel - Partitioning by column:
   `df.write.mode("overwrite").partitionBy("DEST_COUNTRY_NAME").save(partitioned_files_csv_in_parquet.parquet)`
@@ -283,7 +284,13 @@ maxPurchaseQuantity = max(col("Quantity")).over(windowSpec)
   - Set to down the number of partitions. e.g: `df.coalesce(2)`
   
 **- Caching**
-  
+  - You can mark an RDD to be persisted using the persist() or cache() methods on it.
+  - Default storage level is `StorageLevel.MEMORY_ONLY`
+  - The available storage levels in Python include `MEMORY_ONLY, MEMORY_ONLY_2, MEMORY_AND_DISK, MEMORY_AND_DISK_2, DISK_ONLY, and DISK_ONLY_2`
+  - To get the storage level: e.g `df.getStorageLevel()`
+  - Once data is cached, the Catalyst optimizer will only reach back to the location where the data was cached. 
+  - Cache: `df.cache()`
+  - Uncache: `df.uncache()`
 
 
 **- Manipulating Data**
