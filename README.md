@@ -333,7 +333,9 @@ Achieve high performance for interactive, batch, streaming and ML workloads.
 
 1. **Adaptative Query Execution:** Based on statistics of the finished plan nodes, re-optimize the execution plan of the remaining queries. Adaptative planning is between `Logical Plan` and finally `Query Execution`.
   
-  1.1. Convert Sort Merge Join to Broadcast Hash join: Increase `spark.sql.autoBroadcastJoinThreshold` or use `broadcast()` hint.
+  1.1. Convert Sort Merge Join to Broadcast Hash join: 
+  * Switch join strategies. 
+    - Increase `spark.sql.autoBroadcastJoinThreshold` or use `broadcast()` hint.
 
   1.2. Shrink the number of reducers.
   * Dynamically Coalesce Shuffle Partitions:
@@ -345,10 +347,18 @@ Achieve high performance for interactive, batch, streaming and ML workloads.
     - Detect skew from partition sizes using runtime statistics.
     - Split skew partitions into smaller sub-partition.
   
-**2. Dynamic Partition Pruning and**
+**2. Dynamic Partition Pruning**
+
+The goal of Dynamic Partition Pruning (DPP) is to allow you to read only as much data as you need.
+
+  - Simply static partition pruning.
+  - Star schema queries.
+  - Denormalized queries.
+  - Set `spark.sql.optimizer.dynamicPartitionPruning.enabled = true`
+  
 **3. Query Compilation Speedup**
   - Avoid partition scanning based on the query results of the other query fragments. 
-  - Important for start-schema queries.
+  - Important for star-schema queries.
   - Significant speedup in TPC-DS
 
 **4. Join Hints**
@@ -357,9 +367,12 @@ Join hints influence optimizer to choose the join strategies.
 Should be used with extreme caution. Difficult to manage over time.
 
   - Broadcast hash join: Requeries one side to be small. No shuffle, no sort, very fast.
-  - Sort-merge join *(NEW)*: Robust. Can handle any data size. Need to shuffle and sort data, slower in some cases when table size is small.
+  
+  - Shuffle Sort-merge join *(NEW)*: Robust. Can handle any data size. Need to shuffle and sort data, slower in some cases when table size is small.
+  
   - Shuffle hash join *(NEW)*: Needs to shuffle data but no sort. Can handle large tables, bit will OOM too if data is skewed.
-  - Shuffle nested loop join *(NEW)*: Doesn't require join keys.
+  
+  - Shuffle nested loop join *(NEW)*: A Shuffle Nested Join (aka Cartesian Product Join) does not shuffle data. Instead, it does an all-pairs comparison between all join keys of each executor. This is useful for very small workloads. Doesn't require join keys.
   
 
 ### Richer APIs
@@ -371,20 +384,84 @@ Enable new uses cases and simplify the Spark application development, new capabi
 2. **Built-in Functions:** 32 new built-in functions in Scala.
 Examples: map_filter, bit_count, count_if, acosh, map_zip_with, typeof, xxhash64, from_csv, date_part, bit_and, make_timestamp, min_by, make_interval, make_date, every, transform_values, etc.
 
+
 3. **Pandas UDF Enhancements:**
+  Supported type hints include: 
+    - Series to Series
+    - Iterator of Series to Iterator of Series
+    - Iterator of Multiple Series to Iterator of Series
+    - Series to Scalar (a single value)
+  Supported function APIs include: 
+    - Grouped Map
+    - Map
+    - Co-grouped Map
+  
+  Summary:
+  - Scalar Pandas UDF [pandas.Series to pandas.Series]
+  - Grouped Map Pandas Function API [pandas.Dataframe to pandas.Dataframe]
+  - Grouped Aggregate Pandas UDF [pandas.Series to pandas.Scalar]
+
+4. **DELETE/UPDATE/MERGE in Catalyst**
 
 
-4. **DELETE/UPDATE/MERGE in Catalyst:**
 
+### Monitoring ad Debbuggability
 
+Make monitoring and debbugging in Spark applications more comprehensive and stable.
 
+1. **Structured Streaming UI**
+2. **Observable Metrics**
+3. **Event Log Rollover**
+  - For any stream you can access real-time metrics about:
+    - Input rate
+    - Process Rate
+    - Input rows
+    - Batch duration
+    - Operation duration
+  - Click over any graph to get details.
 
+4. **DDL/DML Enhancements:**
 
+2.1. Formatted Explain plan: You can access a formatted version of the explain plan with EXPLAIN FORMATTED. There have now a Header (shows the basic operating tree for the execution plan with numbers id for each one), a Footer (use the id number given in the header to trace identity of the operator and see additional features) and a subqueries.
 
+  ```
+  EXPLAIN FORMATTED
+  SELECT *
+  FROM table
+  WHERE key = (SELECT ...)
+  ```
 
+2.2. SQL Improvements - Better ANSI SQL Compliance: 
+  SQL Compatibility: 
+  
+  - Reduce the time and complexity of enabling applications that were written for other relational database products to run in Spark SQL.
+  - ANSI SQL compliance is critical for workload migration from other SQL engines to Spark SQL.
+  - ANSI Store Assignment.
+  - Overflow checking.
+  - Reserved Keywords in Parser.
+  - To improve complience, switches to Proleptic Gregorian Calendar.
+  - The following new options are experimental and off by default. Set `spark.sql.ansi.enabled = true` and `spark.sql.storeAssignmentPolicy = ANSI`
+  
 
+5. **Built-in Data Sources V2:**
 
+Enhance the performance and functionalities pf the built-in data sources.
+  - It provides unified APIs for streaming and batch processing of data sources, and supports pushdown and pruning for many common file sources, including ORC, Kafka, Cassandsa, Delta Lake, and Apache Iceberg. 
+  - This release offers a catalog plugin API, which allows users to register customized catalogs and then use Spark to access/manipulate table metadata directly. 
 
+  - Parquet/ORC Nested Column pruning
+  - CSV Filter Pushdown
+  - Parquet: Nested Column. Filter pushdown
+  - New binary Data Source
+  
+### Extensibility and Ecosystem
+
+  Improve the plug-in interface and extend the deployment environments.
+  
+  - Data Source V2 API + Catalog Support
+  - JDK 11 Support
+  - Hadoop 3 Support
+  - Hive 2.x Metastore. Hive 2.3 execution
 
 
 
