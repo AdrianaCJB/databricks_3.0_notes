@@ -283,13 +283,14 @@ maxPurchaseQuantity = max(col("Quantity")).over(windowSpec)
   - Set to down the number of partitions. e.g: `df.coalesce(2)`
   
 **- Caching**
-  - 
+  
 
 
 **- Manipulating Data**
-    - Imputing null or missing data: There are some techniques such as dropping these records, adding a placeholder (e.g. -1 or -999), basic imputing by using the mean of non-missing data, and advanced imputing such as clustering ML algorithms or oversampling techniques. e.g. `df.dropna("any")` , `df.na.fill({"col1" : 5})`
-    - Deduplicating data: `df.dropDuplicates(["id"])`
-    - Other helpful data manipultion functions: e.g `explode(), pivot(), cube(), rullop()`
+  - Imputing null or missing data: There are some techniques such as dropping these records, adding a placeholder (e.g. -1 or -999), basic imputing by using the mean of non-missing data, and advanced imputing such as clustering ML algorithms or oversampling techniques. 
+  e.g. `df.dropna("any")` , `df.na.fill({"col1" : 5})`
+  - Deduplicating data: `df.dropDuplicates(["id"])`
+  - Other helpful data manipultion functions: e.g `explode(), pivot(), cube(), rullop()`
 
 
 ## Spark SQL
