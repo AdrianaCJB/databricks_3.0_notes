@@ -440,6 +440,9 @@ Make monitoring and debbugging in Spark applications more comprehensive and stab
   SELECT *
   FROM table
   WHERE key = (SELECT ...)
+  
+  
+  df.explain("FORMATTED")
   ```
 
 4.2. SQL Improvements - Better ANSI SQL Compliance: 
