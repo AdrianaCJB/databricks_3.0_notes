@@ -264,6 +264,7 @@ spark.read.option("inferSchema","true")
 
 
 **- Window functions**
+You can also use window functions to carry out some unique aggregations by either computing some aggregation on a specific “window” of data, which you define by using a reference to the current data. This window specification determines which rows will be passed in to this function.
 
 `pyspark.sql.functions.window(timeColumn, windowDuration, slideDuration=None, startTime=None)`
 
@@ -282,6 +283,7 @@ maxPurchaseQuantity = max(col("Quantity")).over(windowSpec)
   - Set to down the number of partitions. e.g: `df.coalesce(2)`
   
 **- Caching**
+  - 
 
 
 **- Manipulating Data**
@@ -294,7 +296,13 @@ maxPurchaseQuantity = max(col("Quantity")).over(windowSpec)
 
 ### Catalyst Optimizer
 
-Is at the core of Spark SQL's power and speed. It automatically finds the most efficient plan for applying your transformations and actions you called for in your code.
+Is at the core of Spark SQL's power and speed. It automatically finds the most efficient plan for applying your transformations and actions you called for in your code. Here’s an overview of the steps:
+
+1. Write DataFrame/Dataset/SQL Code.
+2. If valid code, Spark converts this to a Logical Plan.
+3. Spark transforms this Logical Plan to a Physical Plan, checking for optimizations along
+the way.
+4. Spark then executes this Physical Plan (RDD manipulations) on the cluster.
 
 
 
@@ -315,6 +323,69 @@ Running by default on port 4040, where you can view metrics and details such as:
 - Information about the environment
 - Information about the running executors
 - All the Spark SQL queries
+
+
+## What's new in Spark 3.0???
+
+### Performance
+
+Achieve high performance for interactive, batch, streaming and ML workloads.
+
+1. **Adaptative Query Execution:** Based on statistics of the finished plan nodes, re-optimize the execution plan of the remaining queries. Adaptative planning is between `Logical Plan` and finally `Query Execution`.
+  
+  1.1. Convert Sort Merge Join to Broadcast Hash join: Increase `spark.sql.autoBroadcastJoinThreshold` or use `broadcast()` hint.
+
+  1.2. Shrink the number of reducers.
+  * Dynamically Coalesce Shuffle Partitions:
+    - Set the initial partition number high to accommodate the largest data size of the entire query execution. 
+    - Automatically coalesce partitions if needed after each query stage.
+
+  1.3. Handle skew join.
+  * Dynamically Optimize Skew Joins:
+    - Detect skew from partition sizes using runtime statistics.
+    - Split skew partitions into smaller sub-partition.
+  
+**2. Dynamic Partition Pruning and**
+**3. Query Compilation Speedup**
+  - Avoid partition scanning based on the query results of the other query fragments. 
+  - Important for start-schema queries.
+  - Significant speedup in TPC-DS
+
+**4. Join Hints**
+
+Join hints influence optimizer to choose the join strategies.
+Should be used with extreme caution. Difficult to manage over time.
+
+  - Broadcast hash join: Requeries one side to be small. No shuffle, no sort, very fast.
+  - Sort-merge join *(NEW)*: Robust. Can handle any data size. Need to shuffle and sort data, slower in some cases when table size is small.
+  - Shuffle hash join *(NEW)*: Needs to shuffle data but no sort. Can handle large tables, bit will OOM too if data is skewed.
+  - Shuffle nested loop join *(NEW)*: Doesn't require join keys.
+  
+
+### Richer APIs
+
+Enable new uses cases and simplify the Spark application development, new capabilities and new features.
+
+1. **Accelerator-aware Scheduler:** Widely used for accelerating special workloads., e.g, deep learning and signal processing. Supports Standalone, YARNG, K8S. Supports GPU, FPGA, TPU. Needs to specify requires resources by configs. Application Level.
+
+2. **Built-in Functions:** 32 new built-in functions in Scala.
+Examples: map_filter, bit_count, count_if, acosh, map_zip_with, typeof, xxhash64, from_csv, date_part, bit_and, make_timestamp, min_by, make_interval, make_date, every, transform_values, etc.
+
+3. **Pandas UDF Enhancements:**
+
+
+4. **DELETE/UPDATE/MERGE in Catalyst:**
+
+
+
+
+
+
+
+
+
+
+
 
 
 
