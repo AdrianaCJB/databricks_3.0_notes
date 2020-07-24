@@ -340,6 +340,9 @@ Running by default on port 4040, where you can view metrics and details such as:
 Achieve high performance for interactive, batch, streaming and ML workloads.
 
 1. **Adaptative Query Execution:** Based on statistics of the finished plan nodes, re-optimize the execution plan of the remaining queries. Adaptative planning is between `Logical Plan` and finally `Query Execution`.
+
+  - It's like a coalesce partition because the plan it adjust for tasks and stages, and ignore the 200 numbers of shuffle partitions by default.
+  - Set `spark.conf.set("spark.sql.adaptative.enable","true")`
   
   1.1. Convert Sort Merge Join to Broadcast Hash join: 
   * Switch join strategies. 
