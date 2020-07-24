@@ -325,9 +325,9 @@ Running by default on port 4040, where you can view metrics and details such as:
 - All the Spark SQL queries
 
 
-## What's new in Spark 3.0???
+# What's new in Spark 3.0???
 
-### Performance
+### * Performance
 
 Achieve high performance for interactive, batch, streaming and ML workloads.
 
@@ -375,7 +375,7 @@ Should be used with extreme caution. Difficult to manage over time.
   - Shuffle nested loop join *(NEW)*: A Shuffle Nested Join (aka Cartesian Product Join) does not shuffle data. Instead, it does an all-pairs comparison between all join keys of each executor. This is useful for very small workloads. Doesn't require join keys.
   
 
-### Richer APIs
+### * Richer APIs
 
 Enable new uses cases and simplify the Spark application development, new capabilities and new features.
 
@@ -405,7 +405,7 @@ Examples: map_filter, bit_count, count_if, acosh, map_zip_with, typeof, xxhash64
 
 
 
-### Monitoring ad Debbuggability
+### * Monitoring ad Debbuggability
 
 Make monitoring and debbugging in Spark applications more comprehensive and stable.
 
@@ -422,7 +422,7 @@ Make monitoring and debbugging in Spark applications more comprehensive and stab
 
 4. **DDL/DML Enhancements:**
 
-2.1. Formatted Explain plan: You can access a formatted version of the explain plan with EXPLAIN FORMATTED. There have now a Header (shows the basic operating tree for the execution plan with numbers id for each one), a Footer (use the id number given in the header to trace identity of the operator and see additional features) and a subqueries.
+4.1. Formatted Explain plan: You can access a formatted version of the explain plan with EXPLAIN FORMATTED. There have now a Header (shows the basic operating tree for the execution plan with numbers id for each one), a Footer (use the id number given in the header to trace identity of the operator and see additional features) and a subqueries.
 
   ```
   EXPLAIN FORMATTED
@@ -431,7 +431,7 @@ Make monitoring and debbugging in Spark applications more comprehensive and stab
   WHERE key = (SELECT ...)
   ```
 
-2.2. SQL Improvements - Better ANSI SQL Compliance: 
+4.2. SQL Improvements - Better ANSI SQL Compliance: 
   SQL Compatibility: 
   
   - Reduce the time and complexity of enabling applications that were written for other relational database products to run in Spark SQL.
@@ -454,7 +454,7 @@ Enhance the performance and functionalities pf the built-in data sources.
   - Parquet: Nested Column. Filter pushdown
   - New binary Data Source
   
-### Extensibility and Ecosystem
+### * Extensibility and Ecosystem
 
   Improve the plug-in interface and extend the deployment environments.
   
