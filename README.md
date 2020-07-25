@@ -191,10 +191,10 @@ spark.read.option("inferSchema","true")
   ```
   - Saving Dataframe as a SQL table: `spark.write.format("parquet").saveAsTable(parquet_table)`
   - How to write a data source to 1 single file or N separate files. 
-  - Writing data in parallel - Partitioning by column:
+  - Writing data in parallel - **Partitioning** by column:
   `df.write.mode("overwrite").partitionBy("DEST_COUNTRY_NAME").save(partitioned_files_csv_in_parquet.parquet)`
   - How to write partitioned data. e.g: `spark.write.repartition(N).mode("overwrite").parquet(<path>)`
-  - How to bucket data by a given set of columns. (Bucketing is supported only for Spark-managed tables). e.g:
+  - How to bucket data by a given set of columns. (Bucketing is supported only for Spark-managed tables). **Bucketing** is an optimization technique that uses buckets (and bucketing columns) to determine data partitioning and avoid data shuffle.  e.g:
   ```
   numberBuckets = 10
   columnToBucketBy = "count"
