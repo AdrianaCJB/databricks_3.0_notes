@@ -1,7 +1,7 @@
 # Databricks Spark 3.0 Notes
 
 This is my study notes and summary about the Databricks Certified Associate Developer for Apache Spark 3.0 - Python
-
+Note: Not include Streaming, GraphX, RDD commands.
 
 # Summary
 
@@ -121,8 +121,27 @@ df = sc.parallelize([ \
   - Create a DataFrame/Dataset from a collection (e.g. list or set). Dataset is only for Scala and Java.
   - Create a DataFrame for a range of numbers. e.g: `spark.range(10).toDF("value")`
   - Access the DataFrameReaders. e.g: `spark.read.format("<format>").load("<path>")`
-  - Register User Defined Functions (UDFs). e.g: `spark.udf.register(<name_udf_sql>, <name_funtion>, <output_datatype>)`
+  - Register own User Defined Functions (UDFs). e.g: `spark.udf.register(<name_udf_sql>, <name_funtion>, <output_datatype>)`
 
+
+**- SQL Tables and Views**
+  - Spark  by  default  uses  the Apache  Hive  metastore,  located  at  /user/hive/warehouse,  to  persist  all  the  metadata about your tables. 
+  - You can set `spark.sql.warehouse.dir`
+  - `spark.sql(" .... query ....")` return a Dataframe.
+  - Craate views: `CREATE OR REPLACE GLOBAL TEMP VIEW <name>...`
+  - Managed vs unmanaged tables: 
+    - Managed tables: Spark manages both the metadata and the data in the file store. You can `DROP TABLE`.
+    ```
+        spark.sql("""CREATE TABLE us_delay_flights_tbl(date STRING, delay INT, 
+        distance INT, origin STRING, destination STRING)""")
+    ```
+    - Unmanages tables: Spark only  manages  the  metadata. e.g external datasources such as Cassandra or external files.
+    ```
+    spark.sql("""CREATE TABLE us_delay_flights_tbl(date STRING, delay INT, 
+        distance INT, origin STRING, destination STRING) 
+        USING csv OPTIONS (PATH 
+        '/databricks-datasets/learning-spark-v2/flights/departuredelays.csv')"""
+    ```
 
 **- DataFrameReader**
   - Read data for the "core" data formats (CSV, JSON, JDBC, ORC, Parquet, text and tables). 
@@ -188,16 +207,27 @@ spark.read.option("inferSchema","true")
          )
     ```
 
+**- Data sources and file formats:**
+  - `spark.read.format("<format>")...`
+  - CSV, JSON, TEXT
+  - JDBC
+  - Orc
+  - Parquet
+  - Images: To support deep learning and machine learning frameworks.
+  - BinaryFile:
+  - Avro: Introduced in Spark 2.4 as a built-in data source, the Avro format is used by  Apache  Kafka  for  message  serializing  and  deserializing.  It  offers  many  benefits,  including  direct  mapping  to  JSON,  speed  and  efficiency,  and  bindings  available for many programming languages.
 
 **- DataFrameWriter**
-  - Write data to the "core" data formats (csv, json, jdbc, orc, parquet, text and tables)
+  - **Parquet file is the preferred and default** built-in data source format in Spark.
+  - Write data to the "core" data formats (csv, json, jdbc, orc, parquet, avro, text and tables)
   - Overwriting existing files. e.g: `spark.write.mode("overwrite").parquet(<path>)`
   - How to configure options for specific formats. e.g: 
   ```
   df.write.format("csv").mode("overwrite").option("sep","\t").save("my-tsv-file.tsv")
   df.write.jdbc(newPath, table_name, mode="append", properties=props)
-  ```
-  - Saving Dataframe as a SQL table: `spark.write.format("parquet").saveAsTable(parquet_table)`
+  ```  
+  - To compression files: `df.write.option("compression","snappy").save()`
+  - Writing Dataframe as a Spark SQL table: `spark.write.format("parquet").saveAsTable(parquet_table)`
   - How to write a data source to 1 single file or N separate files. 
   - Writing data in parallel - **Partitioning** by column:
   `df.write.mode("overwrite").partitionBy("DEST_COUNTRY_NAME").save(partitioned_files_csv_in_parquet.parquet)`
@@ -299,6 +329,9 @@ maxPurchaseQuantity = max(col("Quantity")).over(windowSpec)
   - Once data is cached, the Catalyst optimizer will only reach back to the location where the data was cached. 
   - Cache: `df.cache()`
   - Uncache: `df.uncache()`
+  - Unpersist your cached data, just call `DataFrame.unpersist()`
+  - You can also cache tables and views derived from Dataframes.
+
 
 
 **- Manipulating Data**
@@ -307,8 +340,6 @@ maxPurchaseQuantity = max(col("Quantity")).over(windowSpec)
   - Deduplicating data: `df.dropDuplicates(["id"])`
   - Other helpful data manipultion functions: e.g `explode(), pivot(), cube(), rullop()`
 
-
-## Spark SQL
 
 ### Catalyst Optimizer
 
@@ -320,6 +351,37 @@ Is at the core of Spark SQL's power and speed. It automatically finds the most e
 the way.
 4. Spark then executes this Physical Plan (RDD manipulations) on the cluster.
 
+
+### Spark Deployment
+  - Cluster mode
+  - Client mode
+  - Local mode
+
+
+### Optimizing and Tuning Spark for Efficiency
+
+  - Setting Basic Configurations:
+  ```
+  spark.conf.set("spark.sql.shuffle.partitions", 6)
+  spark.conf.set("spark.executor.cores", "2")
+  spark.conf.set("spark.executor.memory", "4g")
+  spark.conf.set("spark.submit.deployMode", "cluster")
+  
+  -- NEW! (AQE)
+  spark.conf.set("spark.sql.adaptative.enable", true) 
+  ```
+  - Dynamic allocation: Spark provides a mechanism to dynamically adjust the resources your application occupies based on the workload. e.g `spark.conf.set("spark.sql.dynamicAllocation.enable", true) `
+  - Memory uses:
+    - Execution memory is used for Spark shuffles, joins, sorts, and aggregations.
+    - Storage memory is primarily used for caching user data structures and partitions derived from DataFrames.
+  - Avoid bottleneck on Disk during maps and shuffles operations with..
+  - Maximizing Spark parallelism: the ideal is at least as many partitions as there are cores in the executors. If there are more partitions than there are
+cores on each executor, all the cores are kept busy.
+  - How partitions are created: Data on disk by default, file blocks on data stores range in size from 64MB to 128MB. 
+    - Set `spark.sql.files.maxPartitionBytes`.
+    - If you decrease the size, you can get the "small  file  problem"-many smalls partitions files/performance degradation.
+  - Consider caching or persisting your frequently accessed DataFrames or tables.
+  - Consider using read bucketing to avoid large exchanges of data.
 
 
 ## Util Commands in Databricks
@@ -368,7 +430,7 @@ Achieve high performance for interactive, batch, streaming and ML workloads.
   
 **2. Dynamic Partition Pruning**
 
-The goal of Dynamic Partition Pruning (DPP) is to allow you to read only as much data as you need.
+The goal of Dynamic Partition Pruning (DPP) is to allow you to read only as much data as you need. The idea is to skip over the data you don't need in a query's results.
 
   - Simply static partition pruning.
   - Star schema queries.
@@ -385,7 +447,9 @@ The goal of Dynamic Partition Pruning (DPP) is to allow you to read only as much
 Join hints influence optimizer to choose the join strategies.
 Should be used with extreme caution. Difficult to manage over time.
 
-  - Broadcast hash join: Requeries one side to be small. No shuffle, no sort, very fast.
+  - Broadcast hash join: Requeries one side to be small. No shuffle, no sort, very fast. By  default Spark will use a "BHJ" if the smaller data set is less than 10MB. 
+    - Set `spark.sql.autoBroadcastJoinThreshold`.
+    - If set this key with value -1 will cause that Spark always do by default a Shuffle Sort merge Join.
   
   - Shuffle Sort-merge join *(NEW)*: Robust. Can handle any data size. Need to shuffle and sort data, slower in some cases when table size is small.
   
