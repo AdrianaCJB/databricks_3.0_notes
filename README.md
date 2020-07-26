@@ -1,7 +1,8 @@
 # Databricks Spark 3.0 Notes
 
 This is my study notes and summary about the Databricks Certified Associate Developer for Apache Spark 3.0 - Python
-Note: Not include Streaming, GraphX, RDD commands.
+
+**Note: This notes not include Streaming, GraphX, RDD commands.**
 
 # Summary
 
