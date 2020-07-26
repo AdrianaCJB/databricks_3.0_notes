@@ -101,7 +101,15 @@ The RDD is the most basic abstraction in Spark. There are three vital characteri
 - Partitions (with some locality information)
 - Compute function: Partition => Iterator[T]
 
+- Create Dataset to Dataframe:
+```
+rdd.range(10).toDF()
 
+df = sc.parallelize([ \
+    Row(name='Alice', age=5, height=80), \
+    Row(name='Alice', age=5, height=80), \
+    Row(name='Alice', age=10, height=80)]).toDF()
+```
 
 
 ## DataFrames API 
