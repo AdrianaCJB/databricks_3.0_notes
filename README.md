@@ -4,9 +4,9 @@ This is my study notes and summary about the Databricks Certified Associate Deve
 
 **Note: This notes not include Streaming, GraphX, RDD commands.**
 
-# Summary
+# Description
 
-The Databricks Certified Associate Developer for Apache Spark 3.0certification exam assesses an understanding of the basics of the Spark architecture and the ability to apply the Spark DataFrame API to complete individual data manipulation tasks.
+The Databricks Certified Associate Developer for Apache Spark 3.0 certification exam assesses the understanding of the Spark DataFrame API and the ability to apply the Spark DataFrame API to complete basic data manipulation tasks within a Spark session. These tasks include selecting, renaming and manipulating columns; filtering, dropping, sorting, and aggregating rows; handling missing data; combining, reading, writing and partitioning DataFrames with schemas; and working with UDFs and Spark SQL functions. In addition, the exam will assess the basics of the Spark architecture like execution/deployment modes, the execution hierarchy, fault tolerance, garbage collection, and broadcasting.
 
 # Prerequisites
 
@@ -352,12 +352,25 @@ Is at the core of Spark SQL's power and speed. It automatically finds the most e
 the way.
 4. Spark then executes this Physical Plan (RDD manipulations) on the cluster.
 
+## Spark architecture like execution/deployment modes
 
-### Spark Deployment
+### Execution/Deployment mode
   - Cluster mode
   - Client mode
   - Local mode
+  
+### Life Cycle of a Spark Application (Outside Spark)
+  1. Client request.
+  2. Launch.
+  3. Execution.
+  4. Completition.
+  
 
+### Life Cycle of a Spark Application (Inside Spark)
+  - Sparksession, jobs, stages, tasks, shuffles.
+
+
+## Best practices and tuning Spark
 
 ### Optimizing and Tuning Spark for Efficiency
 
