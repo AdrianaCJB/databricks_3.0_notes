@@ -396,6 +396,7 @@ cores on each executor, all the cores are kept busy.
     - If you decrease the size, you can get the "small  file  problem"-many smalls partitions files/performance degradation.
   - Consider caching or persisting your frequently accessed DataFrames or tables.
   - Consider using read bucketing to avoid large exchanges of data.
+  - It's recommend split files Parquet with **gzip compression**.
 
 
 ## Util Commands in Databricks
