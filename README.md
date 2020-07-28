@@ -219,7 +219,7 @@ spark.read.option("inferSchema","true")
   - Avro: Introduced in Spark 2.4 as a built-in data source, the Avro format is used by  Apache  Kafka  for  message  serializing  and  deserializing.  It  offers  many  benefits,  including  direct  mapping  to  JSON,  speed  and  efficiency,  and  bindings  available for many programming languages.
 
 **- DataFrameWriter**
-  - **Parquet file is the preferred and default** built-in data source format in Spark.
+  - **Parquet file is the expected and default** built-in data source format in Spark. To set other value `spark.sql.sources.default`
   - Write data to the "core" data formats (csv, json, jdbc, orc, parquet, avro, text and tables)
   - Overwriting existing files. e.g: `spark.write.mode("overwrite").parquet(<path>)`
   - Controlled file sizes `df.write.option("maxRecordsPerFiles",5000)`
