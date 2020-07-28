@@ -222,6 +222,7 @@ spark.read.option("inferSchema","true")
   - **Parquet file is the preferred and default** built-in data source format in Spark.
   - Write data to the "core" data formats (csv, json, jdbc, orc, parquet, avro, text and tables)
   - Overwriting existing files. e.g: `spark.write.mode("overwrite").parquet(<path>)`
+  - Controlled file sizes `df.write.option("maxRecordsPerFiles",5000)`
   - How to configure options for specific formats. e.g: 
   ```
   df.write.format("csv").mode("overwrite").option("sep","\t").save("my-tsv-file.tsv")
